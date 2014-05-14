@@ -3,46 +3,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width" />
-	<title>File Upload MVC 4</title>
-	<link href="~/Content/bootstrap/bootstrap.min.css" rel="stylesheet" />
-	<link href="~/Content/bootstrap/bootstrap-theme.min.css" rel="stylesheet" />
-	<link href="~/Content/jquery.fileupload.css" rel="stylesheet" />
-	<script src="~/Scripts/jquery-1.9.1.min.js"></script>
-	<script src="~/Scripts/jquery.ui.widget.js"></script>
-	<script src="~/Scripts/bootstrap.min.js"></script>
-	<script src="~/Scripts/jquery.fileupload.js"></script>
+    <meta name="viewport" content="width=device-width" />
+    <title>File Upload MVC 4</title>
+    <link href="~/Content/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="~/Content/jquery.fileupload.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/jquery.ui.widget.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/jquery.fileupload.js"></script>
 
-<script type="text/javascript">
-	$(document).ready(function () {
-		$('#fileupload').fileupload({
-			dataType: 'json',
-			url: '/Home/UploadFiles',
-			autoUpload: true,
-			done: function (e, data) {
-				$('.file_name').html(data.result.name);
-				$('.file_type').html(data.result.type);
-				$('.file_size').html(data.result.size);
-				$('.file_url').html(data.result.url);
-			}
-		})
-	});
-</script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#fileupload').fileupload({
+                dataType: 'json',
+                url: '/Home/UploadFiles',
+                autoUpload: true,
+                done: function (e, data) {
+                    $('.file_name').html(data.result.name);
+                    $('.file_type').html(data.result.type);
+                    $('.file_size').html(data.result.size);
+                    $('.file_url').html(data.result.url);
+                    $('#ProfileFoto').attr("src", data.result.url);
+                    $('#ProfileFoto').attr("style", "");
+                }
+            }).on('fileuploadprogressall', function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('.progress .progress-bar').css('width', progress + '%');
+            });
+        });
+    </script>
 </head>
 <body>
-	<div class="container">
-		<span class="btn btn-success fileinput-button">
-			<i class="glyphicon glyphicon-plus"></i>
-			<span>Add files...</span>
-            <input id="fileupload" type="file" name="files[]" accept="image/x-png, image/gif, image/jpeg">
-		</span>
-		<br />
-		<div class="file_name"></div>
-		<br />
-		<div class="file_type"></div>
-		<br />
-		<div class="file_size"></div>
+    <div class="container">
+        <hr />
+        <div class="row">
+            <div class="col-md-3">
+              
+                   
+                    <div class="progress progress-striped active v-center">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            <span class="sr-only">0% complete</span>
+                        </div>
+
+                  
+                </div>
+               
+
+            </div>
+            <div class="col-md-3">
+                <span class="btn btn-default fileinput-button">
+                    <span>הוספת תמונת פרופיל</span>
+                    <i class="glyphicon glyphicon-user"></i>
+                    <input id="fileupload" type="file" name="file" accept="image/x-png, image/gif, image/jpeg">
+                </span>
+            </div>
+        </div>
+        <hr />
+        <br />
+        <div class="file_name"></div>
+        <br />
+        <div class="file_type"></div>
+        <br />
+        <div class="file_size"></div>
         <div class="file_url"></div>
-	</div>
+        <div class="col-md-3">
+            <img id="ProfileFoto" src="" alt="פרופיל" class="img-thumbnail" style="display:none">
+        </div>
+    </div>
 </body>
 </html>

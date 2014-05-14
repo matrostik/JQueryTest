@@ -38,55 +38,32 @@ namespace FileUploadMVC4.Controllers
         }
 
         [HttpPost]
-        public ContentResult UploadFiles()
+        public ContentResult UploadFiles(HttpPostedFileBase file)
         {
             //https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin
-            string imgurl = string.Empty;
-            HttpPostedFileBase img = Request.Files[0] as HttpPostedFileBase;
-            if (img != null)
-            {
-                string pic = System.IO.Path.GetFileName(img.FileName);
-                //url = UploadImage(file.FileName);
 
+            string imgurl = string.Empty;
+            if (file != null)
+            {
+                string pic = System.IO.Path.GetFileName(file.FileName);
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    img.InputStream.CopyTo(ms);
+                    file.InputStream.CopyTo(ms);
                     byte[] array = ms.GetBuffer();
                     imgurl = UploadImageToImgur(array);
-
                 }
 
             }
             var res = new UploadFilesResult()
             {
-                name = img.FileName,
-                size = img.ContentLength,
-                type = img.ContentType,
+                name = file.FileName,
+                size = file.ContentLength,
+                type = file.ContentType,
                 url = imgurl
             };
 
-            //var r = new List<UploadFilesResult>();
-            //foreach (string file in Request.Files)
-            //{
-            //    HttpPostedFileBase hpf = Request.Files[file] as HttpPostedFileBase;
-            //    if (hpf.ContentLength == 0)
-            //        continue;
-
-            //    string savedFileName = Path.Combine(Server.MapPath("~/App_Data"), Path.GetFileName(hpf.FileName));
-            //    hpf.SaveAs(savedFileName);
-
-            //    r.Add(new UploadFilesResult()
-            //    {
-            //        name = hpf.FileName,
-            //        size = hpf.ContentLength,
-            //        type = hpf.ContentType
-            //    });
-            //}
             string json = JsonConvert.SerializeObject(res);
-            //string s = "{\"name\":\"" + r[0].name + "\",\"type\":\"" + r[0].type + "\",\"size\":\"" + string.Format("{0} bytes", r[0].size) + "\"}";
             return Content(json, "application/json");
-
-            //return Content("{\"name\":\"" + r[0].Name + "\",\"type\":\"" + r[0].Type + "\",\"size\":\"" + string.Format("{0} bytes", r[0].Length) + "\"}", "application/json");
         }
 
         string ClientId = "6b18f55eeee07f1";
