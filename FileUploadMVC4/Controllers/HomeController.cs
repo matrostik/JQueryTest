@@ -43,7 +43,7 @@ namespace FileUploadMVC4.Controllers
             //https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin
 
             string imgurl = string.Empty;
-            if (file != null)
+            if (file != null && file.ContentLength > 0)
             {
                 string pic = System.IO.Path.GetFileName(file.FileName);
                 using (MemoryStream ms = new MemoryStream())
