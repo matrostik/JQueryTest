@@ -9,6 +9,8 @@ using System.Net;
 using System.Xml.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace FileUploadMVC4.Controllers
 {
@@ -22,7 +24,7 @@ namespace FileUploadMVC4.Controllers
             return View();
         }
 
-        public FilePathResult Image()
+        public FilePathResult FilePath()
         {
             string filename = Request.Url.AbsolutePath.Replace("/home/image", "");
             string contentType = "";
@@ -49,8 +51,13 @@ namespace FileUploadMVC4.Controllers
                 using (MemoryStream ms = new MemoryStream())
                 {
                     file.InputStream.CopyTo(ms);
-                    byte[] array = ms.GetBuffer();
-                    imgurl = UploadImageToImgur(array);
+
+                    Image image = Image.FromStream(ms);
+                    Image resized = ResizeImageFixedWidth(image, 140);
+                    byte[] imageByte = ImageToByteArraybyMemoryStream(resized);
+                    imgurl = UploadImageToImgur(imageByte);
+                    //byte[] array = ms.GetBuffer();
+                   // imgurl = UploadImageToImgur(array);
                 }
 
             }
@@ -86,6 +93,66 @@ namespace FileUploadMVC4.Controllers
                 //MessageBox.Show("Something went wrong. " + s.Message);
                 return s.Message;
             }
+        }
+
+        private static Image resizeImage(Image imgToResize, Size size)
+        {
+            int sourceWidth = imgToResize.Width;
+            int sourceHeight = imgToResize.Height;
+
+            float nPercent = 0;
+            float nPercentW = 0;
+            float nPercentH = 0;
+
+            nPercentW = ((float)size.Width / (float)sourceWidth);
+            nPercentH = ((float)size.Height / (float)sourceHeight);
+
+            if (nPercentH < nPercentW)
+                nPercent = nPercentH;
+            else
+                nPercent = nPercentW;
+
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+            Bitmap b = new Bitmap(destWidth, destHeight);
+            Graphics g = Graphics.FromImage((Image)b);
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
+            g.Dispose();
+
+            return (Image)b;
+        }
+
+        public static Image ResizeImageFixedWidth(Image imgToResize, int width)
+        {
+            int sourceWidth = imgToResize.Width;
+            int sourceHeight = imgToResize.Height;
+
+            float nPercent = ((float)width / (float)sourceWidth);
+
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+            Bitmap b = new Bitmap(destWidth, destHeight);
+            Graphics g = Graphics.FromImage((Image)b);
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
+            g.Dispose();
+
+            return (Image)b;
+        }
+        private static byte[] ImageToByteArraybyMemoryStream(Image image)
+        {
+            MemoryStream ms = new MemoryStream();
+            image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            return ms.ToArray();
         }
 
     }
